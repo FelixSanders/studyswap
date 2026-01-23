@@ -168,92 +168,117 @@
             text-align: center;
         }
 
-        .nav .active {
+        .nav button {
+            background: none;
+            border: none;
+            font-size: 11px;
+            color: #777;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .nav button.active {
             color: #6b9a3f;
             font-weight: 600;
+        }
+
+        .nav button:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
 
 <body>
 
-<div class="header">
-  <h2>Notes in, Stress out!</h2>
-  <p>Start learning for growth, not for time pass.</p>
-  <button>Start Learning</button>
-</div>
-
-<div class="container">
-
-  <div class="greet">
-    <h3>Hi, <span id="username"></span> :)</h3>
-    <p>Ingin Belajar Apa Hari Ini?</p>
-  </div>
-
-  <div class="grid">
-    <div class="card">Mathematics</div>
-    <div class="card">Economy</div>
-    <div class="card">Physics</div>
-    <div class="card">English</div>
-  </div>
-
-  <div class="section-title">Compulsory Subjects</div>
-  <div class="grid">
-    <div class="card light">Indonesian</div>
-    <div class="card light">History</div>
-  </div>
-
-  <div class="section-title">Elective Subjects</div>
-  <div class="grid">
-    <div class="card light">Economy</div>
-    <div class="card light">Physics</div>
-  </div>
-
-  <div class="leader">
-    <div class="section-title">Top Brain Feeder This Month :</div>
-    <div class="search">Search Student Names</div>
-
-    <div class="profile">
-      <img src="https://i.pravatar.cc/100" alt="Profile">
-      <strong id="leaderName"></strong><br>
-      <small>CLASS : XII - E</small>
-
-      <div class="badges">
-        <div>📚 Notes Sent : 40</div>
-        <div>✔ Notes Verified : 40</div>
-      </div>
-
-      <button>Check Leaderboard</button>
+    <div class="header">
+        <h2>Notes in, Stress out!</h2>
+        <p>Start learning for growth, not for time pass.</p>
+        <button>Start Learning</button>
     </div>
-  </div>
 
-</div>
+    <div class="container">
 
-<div class="nav">
-  <div class="active">🏠<br>Home</div>
-  <div>⬆<br>Upload</div>
-  <div>📚<br>Subjects</div>
-  <div>👤<br>Profile</div>
-</div>
+        <div class="greet">
+            <h3>Hi, <span id="username"></span> :)</h3>
+            <p>Ingin Belajar Apa Hari Ini?</p>
+        </div>
 
-<script src="auth.js"></script>
-<script>
-  const email = localStorage.getItem("currentUser");
-  if (!email) {
-    window.location.href = "auth/login.html";
-  }
+        <div class="grid">
+            <div class="card">Mathematics</div>
+            <div class="card">Economy</div>
+            <div class="card">Physics</div>
+            <div class="card">English</div>
+        </div>
 
-  const users = JSON.parse(localStorage.getItem("users")) || [];
-  const user = users.find(u => u.email === email);
+        <div class="section-title">Compulsory Subjects</div>
+        <div class="grid">
+            <div class="card light">Indonesian</div>
+            <div class="card light">History</div>
+        </div>
 
-  if (!user) {
-    localStorage.removeItem("currentUser");
-    window.location.href = "auth/login.html";
-  } else {
-    document.getElementById("username").textContent = user.name;
-    document.getElementById("leaderName").textContent = user.name;
-  }
-</script>
+        <div class="section-title">Elective Subjects</div>
+        <div class="grid">
+            <div class="card light">Economy</div>
+            <div class="card light">Physics</div>
+        </div>
+
+        <div class="leader">
+            <div class="section-title">Top Brain Feeder This Month :</div>
+            <div class="search">Search Student Names</div>
+
+            <div class="profile">
+                <img src="https://i.pravatar.cc/100" alt="Profile">
+                <strong id="leaderName"></strong><br>
+                <small>CLASS : XII - E</small>
+
+                <div class="badges">
+                    <div>📚 Notes Sent : 40</div>
+                    <div>✔ Notes Verified : 40</div>
+                </div>
+
+                <button>Check Leaderboard</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="nav">
+        <button class="nav-item active" data-link="dashboard.html">
+            🏠<br>Home
+        </button>
+
+        <button class="nav-item" data-link="upload.html">
+            ⬆<br>Upload
+        </button>
+
+        <button class="nav-item" data-link="subjects.html">
+            📚<br>Subjects
+        </button>
+
+        <button class="nav-item" data-link="profile.html">
+            👤<br>Profile
+        </button>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        const email = localStorage.getItem("currentUser");
+        if (!email) {
+            window.location.href = "auth/login.html";
+        }
+
+        const users = JSON.parse(localStorage.getItem("users")) || [];
+        const user = users.find(u => u.email === email);
+
+        if (!user) {
+            localStorage.removeItem("currentUser");
+            window.location.href = "auth/login.html";
+        } else {
+            document.getElementById("username").textContent = user.name;
+            document.getElementById("leaderName").textContent = user.name;
+        }
+    </script>
 
 </body>
+
 </html>
