@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Sign Up - StudySwap</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif
+        }
+
+        body {
+            margin: 0;
+            background: #fff;
+            opacity: 0;
+            transform: translateY(12px);
+            animation: pageIn .5s ease forwards
+        }
+
+        .container {
+            max-width: 420px;
+            margin: auto;
+            padding: 32px
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 20px
+        }
+
+        .logo div {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: #6b9a3f;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 10px
+        }
+
+        label {
+            font-size: 13px
+        }
+
+        .input {
+            display: flex;
+            align-items: center;
+            border: 2px solid #c7d7b7;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 6px;
+            margin-bottom: 16px
+        }
+
+        .input input {
+            border: none;
+            outline: none;
+            flex: 1
+        }
+
+        .icon {
+            margin-right: 8px;
+            color: #6c8e4a;
+            cursor: pointer
+        }
+
+        .checkbox {
+            font-size: 13px;
+            margin-bottom: 24px
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 28px;
+            background: linear-gradient(135deg, #6b9a3f, #8ab85f);
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 13px;
+            margin-top: 20px
+        }
+
+        a {
+            color: #6b9a3f;
+            text-decoration: none
+        }
+
+        #error {
+            color: #d33;
+            font-size: 13px;
+            margin-bottom: 14px;
+            text-align: center
+        }
+
+        @keyframes pageIn {
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">
+            <div>🍓</div>
+            <strong>StudySwap</strong><br>
+            <small>Create your account</small>
+        </div>
+
+        
+
+        <label>Email</label>
+        <div class="input"><span class="icon">📧</span><input id="email"></div>
+
+        <label>Phone Number</label>
+        <div class="input">
+            <span class="icon">📱</span>
+            <input id="phone">
+        </div>
+
+        <label>Full Name</label>
+        <div class="input"><span class="icon">👤</span><input id="name"></div>
+
+        <label>Password</label>
+        <div class="input">
+            <span class="icon" onclick="toggle('p1')">👁️</span>
+            <input type="password" id="p1">
+        </div>
+
+        <label>Confirm Password</label>
+        <div class="input">
+            <span class="icon" onclick="toggle('p2')">👁️</span>
+            <input type="password" id="p2">
+        </div>
+
+        <div class="checkbox">
+            <input type="checkbox"> I agree to terms & privacy policy
+        </div>
+
+        <div id="error"></div>
+        <button class="btn" onclick="handleSignup()">Sign Up</button>
+
+        <div class="footer">
+            Already have an account? <a href="login.html">Sign in here</a>
+        </div>
+    </div>
+
+    <script src="../auth.js"></script>
+    <script>
+        function toggle(id) {
+            const p = document.getElementById(id);
+            p.type = p.type === "password" ? "text" : "password";
+        }
+
+        function handleSignup() {
+            const email = document.getElementById("email").value;
+            const name = document.getElementById("name").value;
+            const phone = document.getElementById("phone").value;
+            const p1 = document.getElementById("p1").value;
+            const p2 = document.getElementById("p2").value;
+
+            if (signup(email, name, phone, p1, p2)) {
+                window.location.href = "../dashboard.html";
+            }
+        }
+    </script>
+</body>
+
+</html>
