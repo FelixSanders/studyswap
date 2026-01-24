@@ -121,7 +121,7 @@
             <small>Create your account</small>
         </div>
 
-        
+
 
         <label>Email</label>
         <div class="input"><span class="icon">📧</span><input id="email"></div>
@@ -134,6 +134,59 @@
 
         <label>Full Name</label>
         <div class="input"><span class="icon">👤</span><input id="name"></div>
+
+        <label>Class</label>
+        <div class="input">
+            <span class="icon">🎓</span>
+            <select id="class" style="border:none;outline:none;flex:1;background:none">
+                <option value="">Select Class</option>
+
+                <optgroup label="X">
+                    <option>X - A</option>
+                    <option>X - B</option>
+                    <option>X - C</option>
+                    <option>X - D</option>
+                    <option>X - E</option>
+                    <option>X - F</option>
+                    <option>X - G</option>
+                    <option>X - H</option>
+                    <option>X - I</option>
+                    <option>X - J</option>
+                </optgroup>
+
+                <optgroup label="XI">
+                    <option>XI - A</option>
+                    <option>XI - B</option>
+                    <option>XI - C</option>
+                    <option>XI - D</option>
+                    <option>XI - E</option>
+                    <option>XI - F</option>
+                    <option>XI - G</option>
+                    <option>XI - H</option>
+                    <option>XI - I</option>
+                    <option>XI - J</option>
+                </optgroup>
+
+                <optgroup label="XII">
+                    <option>XII - A</option>
+                    <option>XII - B</option>
+                    <option>XII - C</option>
+                    <option>XII - D</option>
+                    <option>XII - E</option>
+                    <option>XII - F</option>
+                    <option>XII - G</option>
+                    <option>XII - H</option>
+                    <option>XII - I</option>
+                    <option>XII - J</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <label>Birthday</label>
+        <div class="input">
+            <span class="icon">🎂</span>
+            <input type="date" id="birthday">
+        </div>
 
         <label>Password</label>
         <div class="input">
@@ -170,10 +223,12 @@
             const email = document.getElementById("email").value;
             const name = document.getElementById("name").value;
             const phone = document.getElementById("phone").value;
+            const kelas = document.getElementById("class").value;
+            const birthday = document.getElementById("birthday").value;
             const p1 = document.getElementById("p1").value;
             const p2 = document.getElementById("p2").value;
 
-            if (signup(email, name, phone, p1, p2)) {
+            if (signup(email, name, phone, kelas, birthday, p1, p2)) {
                 window.location.href = "../dashboard.html";
             }
         }

@@ -9,12 +9,39 @@
     <style>
         * {
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         body {
             margin: 0;
             background: #f5f7f2;
+            padding-bottom: 80px;
+        }
+
+        /* PAGE ANIMATION WRAPPER */
+        .page {
+            opacity: 0;
+            transform: translateX(20px);
+            animation: pageIn 0.35s ease forwards;
+        }
+
+        @keyframes pageIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .fade-left {
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .fade-right {
+            opacity: 0;
+            transform: translateX(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
         /* HEADER */
@@ -47,12 +74,11 @@
             cursor: pointer;
         }
 
-        /* CONTAINER */
+        /* CONTENT */
         .container {
             padding: 20px;
         }
 
-        /* GREETING */
         .greet {
             background: #fff;
             border-radius: 16px;
@@ -66,16 +92,14 @@
         }
 
         .greet p {
-            margin: 6px 0 0;
+            margin-top: 6px;
             font-size: 13px;
             color: #666;
         }
 
-        /* SUBJECT GRID */
         .section-title {
             font-size: 14px;
-            margin: 16px 0 10px;
-            color: #333;
+            margin: 18px 0 10px;
         }
 
         .grid {
@@ -98,7 +122,7 @@
             background: #6b9a3f;
         }
 
-        /* LEADERBOARD */
+        /* LEADER */
         .leader {
             background: #fff;
             border-radius: 18px;
@@ -159,13 +183,9 @@
             display: flex;
             justify-content: space-around;
             padding: 10px 0;
+            padding-bottom: calc(10px + env(safe-area-inset-bottom));
             border-top: 1px solid #ddd;
-        }
-
-        .nav div {
-            font-size: 11px;
-            color: #777;
-            text-align: center;
+            z-index: 1000;
         }
 
         .nav button {
@@ -174,7 +194,7 @@
             font-size: 11px;
             color: #777;
             text-align: center;
-            cursor: pointer;
+            transition: transform 0.15s ease, color 0.2s ease;
         }
 
         .nav button.active {
@@ -183,100 +203,139 @@
         }
 
         .nav button:active {
-            transform: scale(0.95);
+            transform: scale(0.9);
         }
     </style>
 </head>
 
 <body>
-
-    <div class="header">
-        <h2>Notes in, Stress out!</h2>
-        <p>Start learning for growth, not for time pass.</p>
-        <button>Start Learning</button>
-    </div>
-
-    <div class="container">
-
-        <div class="greet">
-            <h3>Hi, <span id="username"></span> :)</h3>
-            <p>Ingin Belajar Apa Hari Ini?</p>
+    <div class="page">
+        <div class="header">
+            <h2>Notes in, Stress out!</h2>
+            <p>Start learning for growth, not for time pass.</p>
+            <button>Start Learning</button>
         </div>
 
-        <div class="grid">
-            <div class="card">Mathematics</div>
-            <div class="card">Economy</div>
-            <div class="card">Physics</div>
-            <div class="card">English</div>
-        </div>
+        <div class="container">
+            <div class="greet">
+                <h3>Hi, <span id="username"></span> 🙂</h3>
+                <p>Ingin Belajar Apa Hari Ini?</p>
+            </div>
 
-        <div class="section-title">Compulsory Subjects</div>
-        <div class="grid">
-            <div class="card light">Indonesian</div>
-            <div class="card light">History</div>
-        </div>
+            <div class="grid">
 
-        <div class="section-title">Elective Subjects</div>
-        <div class="grid">
-            <div class="card light">Economy</div>
-            <div class="card light">Physics</div>
-        </div>
-
-        <div class="leader">
-            <div class="section-title">Top Brain Feeder This Month :</div>
-            <div class="search">Search Student Names</div>
-
-            <div class="profile">
-                <img src="https://i.pravatar.cc/100" alt="Profile">
-                <strong id="leaderName"></strong><br>
-                <small>CLASS : XII - E</small>
-
-                <div class="badges">
-                    <div>📚 Notes Sent : 40</div>
-                    <div>✔ Notes Verified : 40</div>
+                <div class="card" data-link="https://drive.google.com/drive/folders/10MNHKLWHBKG7cAqEsVMB8drTqvlWxgsK">
+                    🧮<br>Mathematics
                 </div>
 
-                <button>Check Leaderboard</button>
+                <div class="card" data-link="https://drive.google.com/drive/folders/10WtpWP4BjUkFJMxEmjvRqpolm1ln_F12">
+                    📈<br>Economy
+                </div>
+
+                <div class="card" data-link="https://drive.google.com/drive/folders/10Udg2G3frxXhMEI_ReYmfizvPCrPCWZF">
+                    ⚛️<br>Physics
+                </div>
+
+                <div class="card" data-link="https://drive.google.com/drive/folders/10PyAi4a1e3zKuJJ053ZA27Ym6qhtxZYO">
+                    📖<br>English
+
+                </div>
+
+            </div>
+
+            <div class="section-title">Compulsory Subjects</div>
+            <div class="grid">
+                <div class="card light"
+                    data-link="https://drive.google.com/drive/folders/10Ord7jGwEGlEnD8HK5YXjch861KV8VEq">
+                    🇮🇩<br>Indonesian
+                </div>
+
+                <div class="card light"
+                    data-link="https://drive.google.com/drive/folders/10Nd8SoVICh_uNWdf8k9vxjmMFvuaivi8">
+                    🏺<br>History
+                </div>
+            </div>
+
+            <div class="leader">
+                <div class="section-title">Top Brain Feeder This Month :</div>
+                <div class="search">Search Student Names</div>
+                <div class="profile"> <img src="https://i.pravatar.cc/100" alt="Profile"> <strong
+                        id="leaderName"></strong><br> <small>CLASS : <span id="userClass"></span></small>
+                    <div class="badges">
+                        <div>📚 Notes Sent : 40</div>
+                        <div>✔ Notes Verified : 40</div>
+                    </div> <button>Check Leaderboard</button>
+                </div>
             </div>
         </div>
-
     </div>
 
+    <!-- NAVBAR -->
     <div class="nav">
-        <button class="nav-item active" data-link="dashboard.html">
+        <button class="nav-item active" data-index="0" data-link="dashboard.html">
             🏠<br>Home
         </button>
 
-        <button class="nav-item" data-link="upload.html">
+        <button class="nav-item" data-index="1" data-link="upload.html">
             ⬆<br>Upload
         </button>
 
-        <button class="nav-item" data-link="subjects.html">
+        <button class="nav-item" data-index="2" data-link="subjects.html">
             📚<br>Subjects
         </button>
 
-        <button class="nav-item" data-link="profile.html">
+        <button class="nav-item" data-index="3" data-link="profile.html">
             👤<br>Profile
         </button>
     </div>
 
     <script src="auth.js"></script>
     <script>
+        /* AUTH CHECK */
         const email = localStorage.getItem("currentUser");
-        if (!email) {
-            window.location.href = "auth/login.html";
-        }
+        if (!email) location.href = "auth/login.html";
 
-        const users = JSON.parse(localStorage.getItem("users")) || [];
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
         const user = users.find(u => u.email === email);
 
         if (!user) {
             localStorage.removeItem("currentUser");
-            window.location.href = "auth/login.html";
-        } else {
-            document.getElementById("username").textContent = user.name;
-            document.getElementById("leaderName").textContent = user.name;
+            location.href = "auth/login.html";
         }
+
+        document.getElementById("username").textContent = user.name;
+        document.getElementById("leaderName").textContent = user.name;
+        document.getElementById("userClass").textContent = user.class;
+
+        document.querySelectorAll(".card").forEach(card => {
+            card.addEventListener("click", () => {
+                const link = card.dataset.link;
+                if (link) window.open(link, "_blank");
+            });
+        });
+
+        const tabs = [...document.querySelectorAll(".nav-item")];
+        let currentIndex = tabs.findIndex(t => t.classList.contains("active"));
+
+        function animateAndGo(url, direction) {
+            document.body.classList.add(direction === "left" ? "fade-left" : "fade-right");
+            setTimeout(() => {
+                window.location.href = url;
+            }, 300);
+        }
+
+        // TAP
+        tabs.forEach(btn => {
+            btn.addEventListener("click", () => {
+                const nextIndex = Number(btn.dataset.index);
+                if (nextIndex === currentIndex) return;
+
+                animateAndGo(
+                    btn.dataset.link,
+                    nextIndex > currentIndex ? "right" : "left"
+                );
+            });
+        });
     </script>
 
 </body>
