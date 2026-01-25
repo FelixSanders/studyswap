@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Leaderboard - StudySwap</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: #f5f7f2;
+            padding-bottom: 80px;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .page {
+            opacity: 0;
+            transform: translateX(20px);
+            animation: pageIn 0.35s ease forwards;
+        }
+
+        @keyframes pageIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, #6b9a3f, #8ab85f);
+            color: #fff;
+            padding: 24px;
+            border-bottom-left-radius: 28px;
+            border-bottom-right-radius: 28px;
+        }
+
+        .header h2 {
+            margin: 0 0 6px;
+            font-size: 18px;
+        }
+
+        .header p {
+            margin: 0 0 12px;
+            font-size: 13px;
+            opacity: .9;
+        }
+
+        .header button {
+            border: none;
+            background: #fff;
+            color: #6b9a3f;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* CONTAINER */
+        .container {
+            padding: 20px;
+        }
+
+        .container h3 {
+            text-align: center;
+
+        }
+
+        .section-title {
+            font-size: 14px;
+            margin: 18px 0 10px;
+        }
+
+        .search {
+            background: #eef2ea;
+            border-radius: 14px;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 14px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        th {
+            background-color: #6b9a3f;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background: #f0f5eb;
+        }
+
+        tr:hover {
+            background: #d4f5d4;
+        }
+
+        /* NAVBAR */
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            padding-bottom: calc(10px + env(safe-area-inset-bottom));
+            border-top: 1px solid #ddd;
+            z-index: 1000;
+        }
+
+        .nav button {
+            background: none;
+            border: none;
+            font-size: 11px;
+            color: #777;
+            text-align: center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="header">
+            <h2>Notes in, Stress out!</h2>
+            <p>Start learning for growth, not for time pass.</p>
+            <button>Start Learning</button>
+        </div>
+
+        
+        <div class="container">
+            <h3>Top Brain Feeder</h3>
+            <input type="text" id="search" class="search" placeholder="Search student name...">
+
+            <table id="leaderboard">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Class</th>
+                        <th>Name</th>
+                        <th>Approved Notes</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- NAVBAR -->
+    <div class="nav">
+        <button data-link="dashboard.html">🏠<br>Home</button>
+        <button data-link="upload.html">⬆<br>Upload</button>
+        <button data-link="subjects.html">📚<br>Subjects</button>
+        <button data-link="profile.html">👤<br>Profile</button>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
+        const uploads = JSON.parse(localStorage.getItem("uploads") || "[]");
+
+        const tbody = document.querySelector("#leaderboard tbody");
+        const searchInput = document.getElementById("search");
+
+        function renderLeaderboard(filter = "") {
+            tbody.innerHTML = "";
+
+            const leaderboardData = users.map(u => {
+                const approvedNotes = uploads.filter(
+                    up => up.userEmail === u.email && up.status === "approved"
+                ).length;
+
+                return {
+                    email: u.email,
+                    name: u.name,
+                    class: u.class || "-",
+                    approved: approvedNotes
+                };
+            }).filter(u => u.name.toLowerCase().includes(filter.toLowerCase()))
+              .sort((a,b) => b.approved - a.approved);
+
+            leaderboardData.forEach((u, i) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${i+1}</td>
+                    <td>${u.class}</td>
+                    <td>${u.name}</td>
+                    <td>${u.approved}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if (leaderboardData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#777;">No results</td></tr>`;
+            }
+        }
+
+        renderLeaderboard();
+
+        searchInput.addEventListener("input", e => {
+            renderLeaderboard(e.target.value);
+        });
+
+        // NAV
+        document.querySelectorAll(".nav button").forEach(btn => {
+            btn.addEventListener("click", () => {
+                location.href = btn.dataset.link;
+            });
+        });
+    </script>
+</body>
+</html>

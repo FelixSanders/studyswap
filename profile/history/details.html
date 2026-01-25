@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>History Details</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: #f5f7f2;
+            padding: 20px;
+        }
+
+        .back {
+            background: none;
+            border: none;
+            font-size: 14px;
+            color: #6b9a3f;
+            cursor: pointer;
+            margin-bottom: 14px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 18px;
+        }
+
+        h3 {
+            margin-top: 0;
+        }
+
+        .meta {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 8px;
+        }
+
+        .details {
+            font-size: 13px;
+            color: #555;
+            margin: 10px 0;
+        }
+
+        .status {
+            display: inline-block;
+            font-size: 12px;
+            padding: 5px 12px;
+            border-radius: 14px;
+            margin-top: 10px;
+        }
+
+        .pending {
+            background: #ffeaa7;
+            color: #8a6d00;
+        }
+
+        .approved {
+            background: #d4f5d4;
+            color: #1e7e34;
+        }
+
+        .rejected {
+            background: #ffd6d6;
+            color: #b00020;
+        }
+
+        .reason {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #b00020;
+        }
+
+        .preview {
+            margin-top: 14px;
+        }
+
+        .download {
+            display: inline-block;
+            background: #6b9a3f;
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="back" onclick="location.href='../history.html'">← Back</button>
+
+    <div class="card" id="card"></div>
+
+    <script>
+        const email = localStorage.getItem("currentUser");
+        if (!email) location.href = "../../auth/login.html";
+
+        const id = new URLSearchParams(location.search).get("id");
+        const uploads = JSON.parse(localStorage.getItem("uploads") || "[]");
+        const upload = uploads.find(u => u.id == id && u.userEmail === email);
+
+        if (!upload) {
+            alert("Data not found");
+            location.href = "../history.html";
+        }
+
+        const card = document.getElementById("card");
+
+        let preview = "";
+        if (upload.fileType.startsWith("image")) {
+            preview = `
+                <div class="preview">
+                    <img src="${upload.fileData}" style="width:100%;border-radius:14px">
+                </div>
+            `;
+        } else {
+            preview = `
+                <div class="preview">
+                    <a class="download" href="${upload.fileData}" download="${upload.fileName}">
+                        ⬇ Download File
+                    </a>
+                </div>
+            `;
+        }
+
+        card.innerHTML = `
+            <h3>${upload.subject} — ${upload.topic}</h3>
+            <div class="meta">${upload.fileName}</div>
+
+            <div class="details">${upload.details || "-"}</div>
+
+            <span class="status ${upload.status}">
+                ${upload.status.toUpperCase()}
+            </span>
+
+            ${
+                upload.status === "rejected"
+                    ? `<div class="reason">Reason: ${upload.reason}</div>`
+                    : ""
+            }
+
+            ${preview}
+        `;
+    </script>
+
+</body>
+</html>

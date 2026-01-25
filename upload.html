@@ -16,6 +16,12 @@
             margin: 0;
             background: #f5f7f2;
             padding-bottom: 80px;
+            -webkit-user-select: none;
+            /* Safari */
+            -ms-user-select: none;
+            /* IE/Edge */
+            user-select: none;
+            overflow-x: hidden;
         }
 
 
@@ -171,6 +177,7 @@
             color: #777;
             text-align: center;
             transition: transform 0.15s ease, color 0.2s ease;
+            cursor: pointer;
         }
 
         .nav button.active {
@@ -202,6 +209,10 @@
                     <small>Click or drag file to upload</small>
                 </label>
                 <input type="file" id="file">
+                <div id="preview" style="margin-bottom:14px;display:none;">
+                    <strong>Preview:</strong>
+                    <div id="previewBox" style="margin-top:8px;border-radius:12px;overflow:hidden"></div>
+                </div>
 
                 <label>Subject</label>
                 <input class="input" placeholder="e.g. Mathematics">
@@ -214,6 +225,15 @@
 
                 <button class="submit">Submit</button>
             </div>
+        </div>
+    </div>
+    <div id="popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);
+     display:none;align-items:center;justify-content:center;z-index:2000;">
+        <div style="background:#fff;padding:20px;border-radius:20px;width:80%;max-width:320px;text-align:center">
+            <h3>Upload Submitted 🎉</h3>
+            <p>Your notes are under review.</p>
+            <button onclick="location.href='dashboard.html'" style="margin-top:12px;padding:10px 20px;border:none;border-radius:20px;
+            background:#6b9a3f;color:#fff;">Go to Dashboard</button>
         </div>
     </div>
 
@@ -249,6 +269,71 @@
             localStorage.setItem("uploads", JSON.stringify(data));
         }
 
+        function showSuccessPopup() {
+            document.getElementById("popup").style.display = "flex";
+        }
+
+        const fileInput = document.getElementById("file"); // FIXED ID
+        const previewWrapper = document.getElementById("preview");
+        const previewBox = document.getElementById("previewBox");
+
+        fileInput.addEventListener("change", () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            previewWrapper.style.display = "block";
+            previewBox.innerHTML = "";
+
+            // IMAGE PREVIEW
+            if (file.type.startsWith("image/")) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    previewBox.innerHTML = `
+                    <img src="${reader.result}"
+                         style="width:100%;border-radius:14px;
+                         box-shadow:0 6px 14px rgba(0,0,0,.15)">
+                    <p style="font-size:12px;color:#666;margin-top:8px;">
+                        ${file.name}
+                    </p>
+                `;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            // DOCUMENT PREVIEW
+            else {
+                previewBox.innerHTML = `
+                <div style="
+                    background:#f5f7f2;
+                    padding:14px;
+                    border-radius:14px;
+                    display:flex;
+                    align-items:center;
+                    justify-content:space-between;
+                ">
+                    <div>
+                        <strong style="font-size:13px;">${file.name}</strong><br>
+                        <small style="color:#777">
+                            ${(file.size / 1024 / 1024).toFixed(2)} MB
+                        </small>
+                    </div>
+                    <button style="
+                        background:#6b9a3f;
+                        color:#fff;
+                        padding:8px 14px;
+                        border:none;
+                        border-radius:20px;
+                        font-size:12px;
+                        cursor:pointer;
+                    "
+                    onclick="window.open(URL.createObjectURL(file))">
+                        ⬇ Download
+                    </button>
+                </div>
+            `;
+            }
+        });
+
         document.querySelector(".submit").addEventListener("click", () => {
             const subject = document.querySelectorAll(".input")[0].value.trim();
             const topic = document.querySelectorAll(".input")[1].value.trim();
@@ -260,25 +345,33 @@
                 return;
             }
 
-            const uploads = getUploads();
-            uploads.push({
-                id: Date.now(),
-                userEmail: user.email,
-                subject,
-                topic,
-                details,
-                fileName: file.name,
-                status: "pending",
-                createdAt: new Date().toISOString()
-            });
+            const reader = new FileReader();
 
-            saveUploads(uploads);
-            alert("Upload submitted for approval");
+            reader.onload = () => {
+                const uploads = getUploads();
 
-            document.getElementById("file").value = "";
-            document.querySelectorAll(".input").forEach(i => i.value = "");
-            document.querySelector("textarea").value = "";
+                uploads.push({
+                    id: Date.now(),
+                    userEmail: user.email,
+                    subject,
+                    topic,
+                    details,
+                    fileName: file.name,
+                    fileType: file.type,
+                    fileData: reader.result,
+                    status: "pending",
+                    createdAt: new Date().toISOString()
+                });
+
+                saveUploads(uploads);
+
+                // ✅ SHOW POPUP AFTER SAVE
+                showSuccessPopup();
+            };
+
+            reader.readAsDataURL(file);
         });
+
 
         const tabs = [...document.querySelectorAll(".nav-item")];
         let currentIndex = tabs.findIndex(t => t.classList.contains("active"));

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>My History - StudySwap</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: #f5f7f2;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6b9a3f, #8ab85f);
+            color: #fff;
+            padding: 32px 16px;
+            border-bottom-left-radius: 28px;
+            border-bottom-right-radius: 28px;
+            position: relative;
+        }
+
+        .back {
+            position: absolute;
+            left: 16px;
+            top: 16px;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .header h3 {
+            margin: 0;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 14px;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .card h4 {
+            margin: 0 0 4px;
+            font-size: 14px;
+        }
+
+        .file {
+            font-size: 12px;
+            color: #777;
+        }
+
+        .status {
+            display: inline-block;
+            margin-top: 6px;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .pending {
+            background: #ffeaa7;
+            color: #8a6d00;
+        }
+
+        .approved {
+            background: #d4f5d4;
+            color: #1e7e34;
+        }
+
+        .rejected {
+            background: #ffd6d6;
+            color: #b00020;
+        }
+
+        .empty {
+            text-align: center;
+            color: #777;
+            margin-top: 40px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="back" onclick="location.href='../profile.html'">‹</div>
+        <h3>My Upload History</h3>
+    </div>
+
+    <div class="container" id="list"></div>
+
+    <script>
+        const email = localStorage.getItem("currentUser");
+        if (!email) location.href = "../auth/login.html";
+
+        const uploads = JSON.parse(localStorage.getItem("uploads") || "[]");
+        const list = document.getElementById("list");
+
+        const myUploads = uploads.filter(u => u.userEmail === email);
+
+        if (myUploads.length === 0) {
+            list.innerHTML = `<div class="empty">No upload history yet.</div>`;
+        }
+
+        myUploads.forEach(u => {
+            const div = document.createElement("div");
+            div.className = "card";
+            div.onclick = () => {
+                location.href = "history/details.html?id=" + u.id;
+            };
+
+            div.innerHTML = `
+                <h4>${u.subject} — ${u.topic}</h4>
+                <div class="file">${u.fileName}</div>
+                <span class="status ${u.status}">
+                    ${u.status.toUpperCase()}
+                </span>
+            `;
+
+            list.appendChild(div);
+        });
+    </script>
+
+</body>
+</html>

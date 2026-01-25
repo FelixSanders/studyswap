@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Review Submission</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: #f5f7f2;
+            padding: 20px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 18px;
+        }
+
+        h3 {
+            margin-top: 0;
+        }
+
+        .preview {
+            margin: 12px 0;
+        }
+
+        .preview img {
+            width: 100%;
+            border-radius: 14px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, .15);
+        }
+
+        .doc {
+            background: #f5f7f2;
+            padding: 14px;
+            border-radius: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .doc a {
+            background: #6b9a3f;
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 12px;
+            border: 2px solid #c7d7b7;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 24px;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .approve {
+            background: #6b9a3f;
+            color: #fff;
+        }
+
+        .reject {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .back {
+            margin-bottom: 14px;
+            background: none;
+            border: none;
+            font-size: 14px;
+            color: #6b9a3f;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="back" onclick="location.href='../admin.html'">← Back</button>
+
+    <div class="card">
+        <h3 id="title"></h3>
+        <p id="meta"></p>
+
+        <div id="preview" class="preview"></div>
+
+        <label>Rejection Reason</label>
+        <textarea id="reason" rows="3" placeholder="Required if rejecting"></textarea>
+
+        <div class="actions">
+            <button class="approve" onclick="approve()">Approve</button>
+            <button class="reject" onclick="reject()">Reject</button>
+        </div>
+    </div>
+
+    <script>
+        function getUploads() {
+            return JSON.parse(localStorage.getItem("uploads") || "[]");
+        }
+
+        function saveUploads(data) {
+            localStorage.setItem("uploads", JSON.stringify(data));
+        }
+
+        const id = new URLSearchParams(location.search).get("id");
+        const uploads = getUploads();
+        const upload = uploads.find(u => u.id == id);
+
+        if (!upload) {
+            alert("Submission not found");
+            location.href = "../admin.html";
+        }
+
+        if (!upload.status) upload.status = "pending";
+
+        document.getElementById("title").textContent =
+            upload.subject + " — " + upload.topic;
+
+        document.getElementById("meta").innerHTML = `
+            By: ${upload.userEmail}<br>
+            ${
+        upload.details
+            ? `<div style="font-size:12px;color:#999;margin-top:4px">
+                ${upload.details}
+               </div>`:""}
+
+        `;
+
+        const preview = document.getElementById("preview");
+
+        /* FILE PREVIEW */
+        if (upload.fileType && upload.fileType.startsWith("image/")) {
+            preview.innerHTML = `
+                <img src="${upload.fileData}"><div style="font-size:12px;color:#777;margin-top:6px">${upload.fileName}</div>
+            `;
+        } else {
+            preview.innerHTML = `
+                <div class="doc">
+                    <div>
+                        <strong style="font-size:13px">${upload.fileName}</strong>
+                    </div>
+                    <a href="${upload.fileData}" download="${upload.fileName}">
+                        ⬇ Download
+                    </a>
+                </div>
+            `;
+        }
+
+        function approve() {
+            upload.status = "approved";
+            delete upload.reason;
+            saveUploads(uploads);
+            alert("Submission approved");
+            location.href = "../admin.html";
+        }
+
+        function reject() {
+            const reason = document.getElementById("reason").value.trim();
+            if (!reason) {
+                alert("Please provide a rejection reason");
+                return;
+            }
+
+            upload.status = "rejected";
+            upload.reason = reason;
+            saveUploads(uploads);
+            alert("Submission rejected");
+            location.href = "../admin.html";
+        }
+    </script>
+
+</body>
+
+</html>
