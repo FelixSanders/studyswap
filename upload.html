@@ -215,7 +215,15 @@
                 </div>
 
                 <label>Subject</label>
-                <input class="input" placeholder="e.g. Mathematics">
+                <select class="input" style="color: #444;">
+                    <option value="">Select Subject</option>
+                    <option>Mathematics</option>
+                    <option>Economics</option>
+                    <option>History</option>
+                    <option>Physics</option>
+                    <option>English</option>
+                    <option>Indonesian</option>
+                </select>
 
                 <label>Topic</label>
                 <input class="input" placeholder="e.g. Integral Calculus">
@@ -335,7 +343,7 @@
         });
 
         document.querySelector(".submit").addEventListener("click", () => {
-            const subject = document.querySelectorAll(".input")[0].value.trim();
+            const subject = document.querySelectorAll(".input")[0].value;
             const topic = document.querySelectorAll(".input")[1].value.trim();
             const details = document.querySelector("textarea").value.trim();
             const file = document.getElementById("file").files[0];
