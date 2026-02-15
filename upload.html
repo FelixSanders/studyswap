@@ -456,6 +456,15 @@
             }
         });
 
+        function readFileAsDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error("Could not read file for local backup."));
+                reader.readAsDataURL(file);
+            });
+        }
+
         document.querySelector(".submit").addEventListener("click", async () => {
             const subject = document.querySelectorAll(".input")[0].value;
             const topic = document.querySelectorAll(".input")[1].value.trim();
@@ -468,6 +477,18 @@
             }
 
             try {
+                const fileData = await readFileAsDataURL(file);
+                const targetFolderId = getFolderIdForSubject(subject);
+                let driveFile = null;
+
+                try {
+                    updateDriveNote("Uploading to Google Drive...", "#6b9a3f");
+                    driveFile = await uploadFileToDrive(file, subject);
+                } catch (error) {
+                    console.error(error);
+                    updateDriveNote("Saved locally, but Google Drive upload failed.", "#b04a3f");
+                }
+
                 updateDriveNote("Uploading to Google Drive...", "#6b9a3f");
                 const targetFolderId = getFolderIdForSubject(subject);
                 const driveFile = await uploadFileToDrive(file, subject);
@@ -481,6 +502,11 @@
                     details,
                     fileName: file.name,
                     fileType: file.type,
+                    fileData,
+                    driveFileId: driveFile?.id || null,
+                    driveFolderId: driveFile ? targetFolderId : null,
+                    driveViewLink: driveFile?.webViewLink || null,
+                    driveDownloadLink: driveFile?.webContentLink || null,
                     driveFileId: driveFile.id,
                     driveFolderId: targetFolderId,
                     driveViewLink: driveFile.webViewLink || null,
@@ -490,6 +516,10 @@
                 });
 
                 saveUploads(uploads);
+                if (driveFile && targetFolderId) {
+                    updateDriveNote("Uploaded to your dashboard Drive folder + saved locally.", "#6b9a3f");
+                } else if (driveFile) {
+                    updateDriveNote("Uploaded to Google Drive root + saved locally.", "#6b9a3f");
                 if (targetFolderId) {
                     updateDriveNote("Uploaded to your dashboard Drive folder successfully.", "#6b9a3f");
                 } else {
@@ -500,6 +530,8 @@
                 showSuccessPopup();
             } catch (error) {
                 console.error(error);
+                updateDriveNote("Upload failed. Could not save locally.", "#b04a3f");
+                alert("Upload failed. Please try again.");
                 updateDriveNote("Google Drive upload failed. Check OAuth setup and try again.", "#b04a3f");
                 alert("Upload failed. Please connect Google Drive and try again.");
             }
