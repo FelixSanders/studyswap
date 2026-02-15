@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Upload Notes - StudySwap</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <style>
         * {
@@ -156,6 +157,13 @@
             cursor: pointer;
         }
 
+        .drive-note {
+            font-size: 12px;
+            color: #555;
+            margin: 0 0 12px;
+            text-align: center;
+        }
+
         /* NAVBAR */
         .nav {
             position: fixed;
@@ -214,6 +222,7 @@
                     <strong>Preview:</strong>
                     <div id="previewBox" style="margin-top:8px;border-radius:12px;overflow:hidden"></div>
                 </div>
+                <p class="drive-note" id="driveNote">Uploads are saved to your Google Drive.</p>
 
                 <label>Subject</label>
                 <select class="input" style="color: #444;">
@@ -282,6 +291,110 @@
             document.getElementById("popup").style.display = "flex";
         }
 
+        const SUBJECT_DRIVE_FOLDERS = {
+            Mathematics: "10MNHKLWHBKG7cAqEsVMB8drTqvlWxgsK",
+            Economics: "10WtpWP4BjUkFJMxEmjvRqpolm1ln_F12",
+            Physics: "10Udg2G3frxXhMEI_ReYmfizvPCrPCWZF",
+            English: "10PyAi4a1e3zKuJJ053ZA27Ym6qhtxZYO",
+            Indonesian: "10Ord7jGwEGlEnD8HK5YXjch861KV8VEq",
+            History: "10Nd8SoVICh_uNWdf8k9vxjmMFvuaivi8"
+        };
+
+        const DRIVE_CONFIG = {
+            clientId: "620232200219-71bh1r6gj9vpv41fjo5v7bksraf031dp.apps.googleusercontent.com",
+            scope: "https://www.googleapis.com/auth/drive.file"
+        };
+
+        const driveNote = document.getElementById("driveNote");
+        let driveTokenClient = null;
+        let driveAccessToken = null;
+
+        function isDriveConfigured() {
+            return DRIVE_CONFIG.clientId && !DRIVE_CONFIG.clientId.startsWith("YOUR_");
+        }
+
+        function updateDriveNote(message, color = "#555") {
+            driveNote.textContent = message;
+            driveNote.style.color = color;
+        }
+
+        function initDriveTokenClient() {
+            if (!isDriveConfigured()) {
+                updateDriveNote("Set your Google OAuth Client ID in upload.html to enable Drive uploads.", "#b04a3f");
+                return;
+            }
+
+            if (!window.google?.accounts?.oauth2) {
+                updateDriveNote("Google sign-in script did not load. Check your connection and reload.", "#b04a3f");
+                return;
+            }
+
+            driveTokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: DRIVE_CONFIG.clientId,
+                scope: DRIVE_CONFIG.scope,
+                callback: () => {}
+            });
+
+            updateDriveNote("Your notes will be uploaded to your Google Drive.");
+        }
+
+        function requestDriveAccessToken() {
+            return new Promise((resolve, reject) => {
+                if (!driveTokenClient) {
+                    reject(new Error("Google Drive is not configured yet."));
+                    return;
+                }
+
+                driveTokenClient.callback = (response) => {
+                    if (response.error) {
+                        reject(new Error(response.error));
+                        return;
+                    }
+                    driveAccessToken = response.access_token;
+                    resolve(driveAccessToken);
+                };
+
+                driveTokenClient.requestAccessToken({ prompt: driveAccessToken ? "" : "consent" });
+            });
+        }
+
+        function getFolderIdForSubject(subject) {
+            return SUBJECT_DRIVE_FOLDERS[subject] || null;
+        }
+
+        async function uploadFileToDrive(file, subject) {
+            const token = await requestDriveAccessToken();
+            const targetFolderId = getFolderIdForSubject(subject);
+
+            const metadata = {
+                name: `${Date.now()}_${file.name}`,
+                mimeType: file.type || "application/octet-stream"
+            };
+
+            if (targetFolderId) metadata.parents = [targetFolderId];
+
+            const formData = new FormData();
+            formData.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
+            formData.append("file", file);
+
+            const response = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink,webContentLink", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Drive upload failed: ${errText}`);
+            }
+
+            return response.json();
+        }
+
+        window.addEventListener("load", initDriveTokenClient);
+
         const fileInput = document.getElementById("file"); // FIXED ID
         const previewWrapper = document.getElementById("preview");
         const previewBox = document.getElementById("previewBox");
@@ -343,7 +456,16 @@
             }
         });
 
-        document.querySelector(".submit").addEventListener("click", () => {
+        function readFileAsDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error("Could not read file for local backup."));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        document.querySelector(".submit").addEventListener("click", async () => {
             const subject = document.querySelectorAll(".input")[0].value;
             const topic = document.querySelectorAll(".input")[1].value.trim();
             const details = document.querySelector("textarea").value.trim();
@@ -354,9 +476,19 @@
                 return;
             }
 
-            const reader = new FileReader();
+            try {
+                const fileData = await readFileAsDataURL(file);
+                const targetFolderId = getFolderIdForSubject(subject);
+                let driveFile = null;
 
-            reader.onload = () => {
+                try {
+                    updateDriveNote("Uploading to Google Drive...", "#6b9a3f");
+                    driveFile = await uploadFileToDrive(file, subject);
+                } catch (error) {
+                    console.error(error);
+                    updateDriveNote("Saved locally, but Google Drive upload failed.", "#b04a3f");
+                }
+
                 const uploads = getUploads();
 
                 uploads.push({
@@ -367,18 +499,29 @@
                     details,
                     fileName: file.name,
                     fileType: file.type,
-                    fileData: reader.result,
+                    fileData,
+                    driveFileId: driveFile?.id || null,
+                    driveFolderId: driveFile ? targetFolderId : null,
+                    driveViewLink: driveFile?.webViewLink || null,
+                    driveDownloadLink: driveFile?.webContentLink || null,
                     status: "pending",
                     createdAt: new Date().toISOString()
                 });
 
                 saveUploads(uploads);
+                if (driveFile && targetFolderId) {
+                    updateDriveNote("Uploaded to your dashboard Drive folder + saved locally.", "#6b9a3f");
+                } else if (driveFile) {
+                    updateDriveNote("Uploaded to Google Drive root + saved locally.", "#6b9a3f");
+                }
 
                 // ✅ SHOW POPUP AFTER SAVE
                 showSuccessPopup();
-            };
-
-            reader.readAsDataURL(file);
+            } catch (error) {
+                console.error(error);
+                updateDriveNote("Upload failed. Could not save locally.", "#b04a3f");
+                alert("Upload failed. Please try again.");
+            }
         });
 
 
