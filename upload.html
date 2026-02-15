@@ -489,6 +489,9 @@
                     updateDriveNote("Saved locally, but Google Drive upload failed.", "#b04a3f");
                 }
 
+                updateDriveNote("Uploading to Google Drive...", "#6b9a3f");
+                const targetFolderId = getFolderIdForSubject(subject);
+                const driveFile = await uploadFileToDrive(file, subject);
                 const uploads = getUploads();
 
                 uploads.push({
@@ -504,6 +507,10 @@
                     driveFolderId: driveFile ? targetFolderId : null,
                     driveViewLink: driveFile?.webViewLink || null,
                     driveDownloadLink: driveFile?.webContentLink || null,
+                    driveFileId: driveFile.id,
+                    driveFolderId: targetFolderId,
+                    driveViewLink: driveFile.webViewLink || null,
+                    driveDownloadLink: driveFile.webContentLink || null,
                     status: "pending",
                     createdAt: new Date().toISOString()
                 });
@@ -513,6 +520,10 @@
                     updateDriveNote("Uploaded to your dashboard Drive folder + saved locally.", "#6b9a3f");
                 } else if (driveFile) {
                     updateDriveNote("Uploaded to Google Drive root + saved locally.", "#6b9a3f");
+                if (targetFolderId) {
+                    updateDriveNote("Uploaded to your dashboard Drive folder successfully.", "#6b9a3f");
+                } else {
+                    updateDriveNote("Uploaded to Google Drive root (no dashboard folder matched this subject).", "#6b9a3f");
                 }
 
                 // ✅ SHOW POPUP AFTER SAVE
@@ -521,6 +532,8 @@
                 console.error(error);
                 updateDriveNote("Upload failed. Could not save locally.", "#b04a3f");
                 alert("Upload failed. Please try again.");
+                updateDriveNote("Google Drive upload failed. Check OAuth setup and try again.", "#b04a3f");
+                alert("Upload failed. Please connect Google Drive and try again.");
             }
         });
 
